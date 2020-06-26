@@ -1,6 +1,8 @@
 # equalizer
 
-A Flutter plugin to open the device equalizer. Currently, supported on **Android** only. I encourage **iOS**
+A Flutter plugin to open the device equalizer.
+
+Currently, supported on **Android** only. I encourage **iOS**
 contributions from community members.
 
 ## Usage
@@ -19,9 +21,8 @@ Equalizer.openEqualizer(audioSessionId);
 Equalizer.setAudioSessionId(audioSessionId);
 Equalizer.removeAudioSessionId(audioSessionId);
 ```
-
-> You can retrieve `audioSessionId` on android from MediaPlayer. Info on how to do this can be found in
-> `openEqualizer` docs.
+>You can retrieve `audioSessionId` on android from MediaPlayer. Info on how to do this can be found in
+>`openEqualizer` docs.
 
 ## TODO
 
