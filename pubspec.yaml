@@ -1,7 +1,6 @@
 name: equalizer
 description: Equalizer plugin.
 version: 0.0.1
-author: rohansohonee
 homepage: https://github.com/rohansohonee/equalizer
 
 environment:
