@@ -1,6 +1,6 @@
 name: equalizer
-description: A Flutter plugin to open device equalizer.
-version: 0.0.1+1
+description: A Flutter plugin to open device equalizer. You can also create a custom equalizer for Android.
+version: 0.0.2
 homepage: https://github.com/rohansohonee/equalizer
 
 environment:
