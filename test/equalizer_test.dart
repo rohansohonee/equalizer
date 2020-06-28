@@ -5,6 +5,6 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test('openEqualizer', () async {
-    Equalizer.openEqualizer(0);
+    Equalizer.open(0);
   });
 }
