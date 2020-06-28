@@ -10,14 +10,10 @@ import androidx.annotation.NonNull;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
-import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
-import io.flutter.plugin.common.PluginRegistry;
-import io.flutter.plugin.common.PluginRegistry.Registrar;
-import io.flutter.view.FlutterNativeView;
 
 /**
  * EqualizerPlugin
@@ -26,7 +22,6 @@ public class EqualizerPlugin implements FlutterPlugin, MethodCallHandler, Activi
 	private MethodChannel methodChannel;
 	private Context applicationContext;
 	private Activity activity;
-
 
 	@Override
 	public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {
@@ -39,10 +34,10 @@ public class EqualizerPlugin implements FlutterPlugin, MethodCallHandler, Activi
 	@Override
 	public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
 		switch (call.method) {
-		case "openEqualizer":
+		case "open":
 			int sessionId = (int)call.argument("audioSessionId");
 			int content_type = (int)call.argument("contentType");
-			displayDefaultEqualizer(sessionId, content_type, result);
+			displayDeviceEqualizer(sessionId, content_type, result);
 			break;
 		case "setAudioSessionId":
 			setAudioSessionId((int)call.arguments);
@@ -50,13 +45,42 @@ public class EqualizerPlugin implements FlutterPlugin, MethodCallHandler, Activi
 		case "removeAudioSessionId":
 			removeAudioSessionId((int)call.arguments);
 			break;
+		case "init":
+			CustomEQ.init((int)call.arguments);
+			break;
+		case "enable":
+			CustomEQ.enable((boolean)call.arguments);
+			break;
+		case "release":
+			CustomEQ.release();
+			break;
+		case "getBandLevelRange":
+			result.success(CustomEQ.getBandLevelRange());
+			break;
+		case "getCenterBandFreqs":
+			result.success(CustomEQ.getCenterBandFreqs());
+			break;
+		case "getPresetNames":
+			result.success(CustomEQ.getPresetNames());
+			break;
+		case "getBandLevel":
+			result.success(CustomEQ.getBandLevel((int)call.arguments));
+			break;
+		case "setBandLevel":
+			int bandId = (int)call.argument("bandId");
+			int level = (int)call.argument("level");
+			CustomEQ.setBandLevel(bandId, level);
+			break;
+		case "setPreset":
+			CustomEQ.setPreset((String)call.arguments);
+			break;
 		default:
 			result.notImplemented();
 			break;
 		}
 	}
 
-	void displayDefaultEqualizer(int sessionId, int content_type, Result result) {
+	void displayDeviceEqualizer(int sessionId, int content_type, Result result) {
 		Intent intent = new Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL);
 		intent.putExtra(AudioEffect.EXTRA_PACKAGE_NAME, applicationContext.getPackageName());
 		intent.putExtra(AudioEffect.EXTRA_AUDIO_SESSION, sessionId);
