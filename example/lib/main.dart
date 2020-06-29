@@ -67,11 +67,6 @@ class _MyAppState extends State<MyApp> {
                     : CircularProgressIndicator();
               },
             ),
-            Divider(),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Presets(enableCustomEQ),
-            ),
           ],
         ),
       ),
@@ -90,32 +85,46 @@ class CustomEQ extends StatefulWidget {
 }
 
 class _CustomEQState extends State<CustomEQ> {
+  double min, max;
+  String _selectedValue;
+  Future<List<String>> fetchPresets;
+
+  @override
+  void initState() {
+    super.initState();
+    min = widget.bandLevelRange[0].toDouble();
+    max = widget.bandLevelRange[1].toDouble();
+    fetchPresets = Equalizer.getPresetNames();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final min = widget.bandLevelRange[0].toDouble();
-    final max = widget.bandLevelRange[1].toDouble();
-    return StreamBuilder<String>(
-      stream: Equalizer.onPresetChanged.distinct(),
-      builder: (context, _) {
-        int bandId = 0;
-        return FutureBuilder<List<int>>(
-          future: Equalizer.getCenterBandFreqs(),
-          builder: (context, snapshot) {
-            return snapshot.connectionState == ConnectionState.done
-                ? Row(
+    int bandId = 0;
+
+    return FutureBuilder<List<int>>(
+      future: Equalizer.getCenterBandFreqs(),
+      builder: (context, snapshot) {
+        return snapshot.connectionState == ConnectionState.done
+            ? Column(
+                children: [
+                  Row(
                     children: snapshot.data
-                        .map((freq) =>
-                            _buildSliderBand(min, max, freq, bandId++))
+                        .map((freq) => _buildSliderBand(freq, bandId++))
                         .toList(),
-                  )
-                : CircularProgressIndicator();
-          },
-        );
+                  ),
+                  Divider(),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: _buildPresets(),
+                  ),
+                ],
+              )
+            : CircularProgressIndicator();
       },
     );
   }
 
-  Widget _buildSliderBand(double min, double max, int freq, int bandId) {
+  Widget _buildSliderBand(int freq, int bandId) {
     return Column(
       children: [
         SizedBox(
@@ -129,7 +138,7 @@ class _CustomEQState extends State<CustomEQ> {
                 rtl: true,
                 min: min,
                 max: max,
-                values: snapshot.hasData ? [snapshot.data.toDouble()] : [0],
+                values: [snapshot.hasData ? snapshot.data.toDouble() : 0],
                 onDragCompleted: (handlerIndex, lowerValue, upperValue) {
                   Equalizer.setBandLevel(bandId, lowerValue.toInt());
                 },
@@ -141,29 +150,8 @@ class _CustomEQState extends State<CustomEQ> {
       ],
     );
   }
-}
 
-class Presets extends StatefulWidget {
-  const Presets(this.enabled);
-
-  final bool enabled;
-
-  @override
-  _PresetsState createState() => _PresetsState();
-}
-
-class _PresetsState extends State<Presets> {
-  String _selectedValue;
-  Future<List<String>> fetchPresets;
-
-  @override
-  void initState() {
-    super.initState();
-    fetchPresets = Equalizer.getPresetNames();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildPresets() {
     return FutureBuilder<List<String>>(
       future: fetchPresets,
       builder: (context, snapshot) {
