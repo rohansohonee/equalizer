@@ -1,3 +1,8 @@
+## 0.0.2+1
+
+* Refactored example.
+* Removed `onPresetChanged` listener.
+
 ## 0.0.2
 
 * Implemented custom equalizer for Android.
