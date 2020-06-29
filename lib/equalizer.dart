@@ -7,11 +7,6 @@ enum CONTENT_TYPE { MUSIC, MOVIE, GAME, VOICE }
 class Equalizer {
   static const MethodChannel _channel = const MethodChannel('equalizer');
 
-  static StreamController<String> _presetChangeListener;
-
-  /// Listens to preset change events. This will fire when [setPreset] is invoked.
-  static Stream<String> get onPresetChanged => _presetChangeListener.stream;
-
   /// Open's the device equalizer.
   ///
   /// - [audioSessionId] enable audio effects for the current session.
@@ -44,13 +39,11 @@ class Equalizer {
   ///
   /// [audioSessionId] enable audio effects for the current session.
   static Future<void> init(int audioSessionId) async {
-    _presetChangeListener = StreamController<String>.broadcast();
     await _channel.invokeMethod('init', audioSessionId);
   }
 
   /// Release the custom equalizer resources.
   static Future<void> release() async {
-    _presetChangeListener?.close();
     await _channel.invokeMethod('release');
   }
 
@@ -87,14 +80,13 @@ class Equalizer {
     return (await _channel.invokeMethod('getCenterBandFreqs')).cast<int>();
   }
 
-  /// Returns the preset names.
+  /// Returns the preset names available on device.
   static Future<List<String>> getPresetNames() async {
     return (await _channel.invokeMethod('getPresetNames')).cast<String>();
   }
 
   /// Set the preset name.
   static Future<void> setPreset(String presetName) async {
-    _channel.invokeMethod('setPreset', presetName);
-    _presetChangeListener.add(presetName);
+    await _channel.invokeMethod('setPreset', presetName);
   }
 }
