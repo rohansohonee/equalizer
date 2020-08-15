@@ -88,7 +88,10 @@ public class EqualizerPlugin implements FlutterPlugin, MethodCallHandler, Activi
 		if ((intent.resolveActivity(applicationContext.getPackageManager()) != null)) {
 			activity.startActivityForResult(intent, 0);
 		} else {
-			result.error("EQ", "No equalizer found", null);
+			result.error("EQ",
+					"No equalizer found!",
+					"This device may lack equalizer functionality."
+			);
 		}
 	}
 
