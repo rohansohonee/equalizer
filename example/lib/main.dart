@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:equalizer/equalizer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_xlider/flutter_xlider.dart';
 
 void main() => runApp(MyApp());
@@ -37,12 +38,26 @@ class _MyAppState extends State<MyApp> {
           children: [
             SizedBox(height: 10.0),
             Center(
-              child: FlatButton.icon(
-                icon: Icon(Icons.equalizer),
-                label: Text('Open device equalizer'),
-                color: Colors.blue,
-                textColor: Colors.white,
-                onPressed: () => Equalizer.open(0),
+              child: Builder(
+                builder: (context) {
+                  return FlatButton.icon(
+                    icon: Icon(Icons.equalizer),
+                    label: Text('Open device equalizer'),
+                    color: Colors.blue,
+                    textColor: Colors.white,
+                    onPressed: () async {
+                      try {
+                        await Equalizer.open(0);
+                      } on PlatformException catch (e) {
+                        final snackBar = SnackBar(
+                          behavior: SnackBarBehavior.floating,
+                          content: Text('${e.message}\n${e.details}'),
+                        );
+                        Scaffold.of(context).showSnackBar(snackBar);
+                      }
+                    },
+                  );
+                },
               ),
             ),
             SizedBox(height: 10.0),
@@ -108,6 +123,7 @@ class _CustomEQState extends State<CustomEQ> {
             ? Column(
                 children: [
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: snapshot.data
                         .map((freq) => _buildSliderBand(freq, bandId++))
                         .toList(),
