@@ -14,9 +14,9 @@ class Equalizer {
   ///
   /// [android]:
   /// https://developer.android.com/reference/android/media/MediaPlayer#getAudioSessionId()
-  static Future<void> open(int audioSessionId,
+  static Future open(int audioSessionId,
       [CONTENT_TYPE contentType = CONTENT_TYPE.MUSIC]) async {
-    await _channel.invokeMethod(
+    return await _channel.invokeMethod(
       'open',
       {'audioSessionId': audioSessionId, 'contentType': contentType.index},
     );
