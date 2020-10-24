@@ -69,9 +69,11 @@ class Equalizer {
   /// - [bandId] can be retrieved from [getCenterBandFreqs]
   /// - [level] can be retrieved from [getBandLevel]
   static Future<void> setBandLevel(int bandId, int level) async {
+    // The level retrieved here is in dB. The native platform requires
+    // the level in millibels.
     await _channel.invokeMethod(
       'setBandLevel',
-      {'bandId': bandId, 'level': level},
+      {'bandId': bandId, 'level': level * 100},
     );
   }
 
