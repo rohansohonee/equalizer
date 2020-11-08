@@ -1,3 +1,7 @@
+## 0.0.2+2
+
+* Addressed issue #2 Custom Adjust not working.
+
 ## 0.0.2+1
 
 * Refactored example.
