@@ -39,6 +39,9 @@ public class EqualizerPlugin implements FlutterPlugin, MethodCallHandler, Activi
 			int content_type = (int)call.argument("contentType");
 			displayDeviceEqualizer(sessionId, content_type, result);
 			break;
+		case "deviceHasEqualizer":
+			result.success(deviceHasEqualizer((int)call.argument("audioSessionId")));
+			break;
 		case "setAudioSessionId":
 			setAudioSessionId((int)call.arguments);
 			break;
@@ -95,6 +98,12 @@ public class EqualizerPlugin implements FlutterPlugin, MethodCallHandler, Activi
 		}
 	}
 
+	boolean deviceHasEqualizer(int sessionId) {
+		Intent intent = new Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL);
+		intent.putExtra(AudioEffect.EXTRA_PACKAGE_NAME, applicationContext.getPackageName());
+		intent.putExtra(AudioEffect.EXTRA_AUDIO_SESSION, sessionId);
+		return intent.resolveActivity(applicationContext.getPackageManager()) != null;
+	}
 
 	void setAudioSessionId(int sessionId) {
 		Intent i = new Intent(AudioEffect.ACTION_OPEN_AUDIO_EFFECT_CONTROL_SESSION);

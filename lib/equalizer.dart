@@ -22,6 +22,13 @@ class Equalizer {
     );
   }
 
+  static Future<bool> deviceHasEqualizer(int audioSessionId) async {
+    return await _channel.invokeMethod(
+      'deviceHasEqualizer',
+      {'audioSessionId': audioSessionId},
+    );
+  }
+
   /// Set [audioSessionId] for equalizer.
   ///
   /// [android]:

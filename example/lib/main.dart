@@ -36,6 +36,16 @@ class _MyAppState extends State<MyApp> {
         ),
         body: ListView(
           children: [
+            FutureBuilder<bool>(
+              future: Equalizer.deviceHasEqualizer(0),
+              builder: (context, snapshot) => snapshot.hasData
+                  ? Center(
+                      child: Text(
+                        "Device does ${snapshot.data ? '' : 'not '}support equalizer ",
+                      ),
+                    )
+                  : Container(),
+            ),
             SizedBox(height: 10.0),
             Center(
               child: Builder(
