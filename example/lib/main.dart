@@ -76,10 +76,15 @@ class _MyAppState extends State<MyApp> {
             ),
             FutureBuilder<List<int>>(
               future: Equalizer.getBandLevelRange(),
-              builder: (context, snapshot) {
-                return snapshot.connectionState == ConnectionState.done
-                    ? CustomEQ(enableCustomEQ, snapshot.data)
-                    : CircularProgressIndicator();
+              builder: (context, level) {
+                return FutureBuilder<List<int>>(
+                    future: Equalizer.getCenterBandFreqs(),
+                    builder: (context, snapshot) {
+                      return level.connectionState == ConnectionState.done &&
+                              snapshot.connectionState == ConnectionState.done
+                          ? CustomEQ(enableCustomEQ, level.data, snapshot.data)
+                          : CircularProgressIndicator();
+                    });
               },
             ),
           ],
@@ -90,19 +95,22 @@ class _MyAppState extends State<MyApp> {
 }
 
 class CustomEQ extends StatefulWidget {
-  const CustomEQ(this.enabled, this.bandLevelRange);
+  const CustomEQ(this.enabled, this.bandLevelRange, this.centerBandFreqs);
 
   final bool enabled;
   final List<int> bandLevelRange;
+  final List<int> centerBandFreqs;
 
   @override
   _CustomEQState createState() => _CustomEQState();
 }
 
-class _CustomEQState extends State<CustomEQ> {
+class _CustomEQState extends State<CustomEQ> with TickerProviderStateMixin {
   double min, max;
   String _selectedValue;
   Future<List<String>> fetchPresets;
+  double _cuttOfFrequency = 0;
+  double _equalizerAnimationDuration = 1;
 
   @override
   void initState() {
@@ -116,27 +124,87 @@ class _CustomEQState extends State<CustomEQ> {
   Widget build(BuildContext context) {
     int bandId = 0;
 
-    return FutureBuilder<List<int>>(
-      future: Equalizer.getCenterBandFreqs(),
-      builder: (context, snapshot) {
-        return snapshot.connectionState == ConnectionState.done
-            ? Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: snapshot.data
-                        .map((freq) => _buildSliderBand(freq, bandId++))
-                        .toList(),
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: widget.centerBandFreqs
+              .map((freq) => _buildSliderBand(freq, bandId++))
+              .toList(),
+        ),
+        Divider(),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: _buildPresets(),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("0 Hz"),
+              Flexible(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: FlutterSlider(
+                    disabled: !widget.enabled,
+                    axis: Axis.horizontal,
+                    min: 0,
+                    max: (2000).toDouble(),
+                    values: [_cuttOfFrequency],
+                    onDragCompleted:
+                        (handlerIndex, lowerValue, upperValue) async {
+                      var cutOffFrequency = (lowerValue as double).toInt();
+
+                      (await Equalizer.cutOffFrequency(
+                              cutOffFreq: cutOffFrequency,
+                              vsync: this,
+                              duration: Duration(
+                                  seconds:
+                                      _equalizerAnimationDuration.toInt())))
+                          .addListener(() {
+                        setState(() {});
+                      });
+
+                      setState(() {
+                        _cuttOfFrequency = cutOffFrequency.toDouble();
+                      });
+                    },
                   ),
-                  Divider(),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: _buildPresets(),
+                ),
+              ),
+              Text("${2000} Hz"),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("0 s"),
+              Flexible(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: FlutterSlider(
+                    axis: Axis.horizontal,
+                    min: 0,
+                    max: 10,
+                    values: [_equalizerAnimationDuration],
+                    onDragCompleted:
+                        (handlerIndex, lowerValue, upperValue) async {
+                      setState(() {
+                        _equalizerAnimationDuration = lowerValue.toDouble();
+                      });
+                    },
                   ),
-                ],
-              )
-            : CircularProgressIndicator();
-      },
+                ),
+              ),
+              Text("10 s"),
+            ],
+          ),
+        )
+      ],
     );
   }
 

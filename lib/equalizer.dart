@@ -1,10 +1,13 @@
 import 'dart:async';
 
+import 'package:flutter/animation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 
 enum CONTENT_TYPE { MUSIC, MOVIE, GAME, VOICE }
 
 class Equalizer {
+  static AnimationController _animationController;
   static const MethodChannel _channel = const MethodChannel('equalizer');
 
   /// Open's the device equalizer.
@@ -90,5 +93,61 @@ class Equalizer {
   /// Set the preset name.
   static Future<void> setPreset(String presetName) async {
     await _channel.invokeMethod('setPreset', presetName);
+  }
+
+  static Future<AnimationController> cutOffFrequency({
+    @required int cutOffFreq,
+    @required TickerProvider vsync,
+    Duration duration = const Duration(seconds: 1),
+  }) async {
+    if (_animationController != null) {
+      _animationController.dispose();
+      _animationController = null;
+    }
+
+    _animationController = AnimationController(
+      vsync: vsync,
+      duration: duration,
+    );
+
+    var centerFreqs = await Equalizer.getCenterBandFreqs();
+    var bandLevelRange = await Equalizer.getBandLevelRange();
+    var min = bandLevelRange[0];
+
+    List<IntTween> tweens = await Future.wait(centerFreqs.map((item) async {
+      var index = centerFreqs.indexOf(item);
+      var freq = (item ~/ 1000);
+
+      var nextFreq =
+          index + 1 < centerFreqs.length ? (centerFreqs[index + 1] ~/ 1000) : 0;
+
+      var step = min.abs() / freq;
+
+      var newValue = -((step * cutOffFreq).toInt()).toInt();
+      newValue = newValue < min ? min.toInt() : newValue;
+
+      if (freq > cutOffFreq && (freq >= cutOffFreq && nextFreq <= cutOffFreq)) {
+        newValue = 0;
+      }
+
+      return IntTween(begin: await Equalizer.getBandLevel(index), end: newValue)
+        ..animate(_animationController);
+    }));
+
+    _animationController.addListener(() {
+      tweens.forEach((tween) {
+        var index = tweens.indexOf(tween);
+        Equalizer.setBandLevel(index, tween.evaluate(_animationController));
+      });
+    });
+
+    _animationController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _animationController.dispose();
+        _animationController = null;
+      }
+    });
+
+    return _animationController..forward();
   }
 }
