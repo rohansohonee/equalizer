@@ -95,11 +95,11 @@ class Equalizer {
     await _channel.invokeMethod('setPreset', presetName);
   }
 
-  static Future<AnimationController> cutOffFrequency({
-    @required int cutOffFreq,
-    @required TickerProvider vsync,
-    Duration duration = const Duration(seconds: 1),
-  }) async {
+  static Future<AnimationController> cutOffFrequency(
+      {@required int cutOffFreq,
+      @required TickerProvider vsync,
+      Duration duration = const Duration(seconds: 1),
+      int cutOffPercentage = 100}) async {
     if (_animationController != null) {
       _animationController.dispose();
       _animationController = null;
@@ -112,7 +112,7 @@ class Equalizer {
 
     var centerFreqs = await Equalizer.getCenterBandFreqs();
     var bandLevelRange = await Equalizer.getBandLevelRange();
-    var min = bandLevelRange[0];
+    var min = -((bandLevelRange[0].abs() / 100) * cutOffPercentage);
 
     List<IntTween> tweens = await Future.wait(centerFreqs.map((item) async {
       var index = centerFreqs.indexOf(item);

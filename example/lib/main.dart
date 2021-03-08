@@ -160,8 +160,8 @@ class _CustomEQState extends State<CustomEQ> with TickerProviderStateMixin {
                               cutOffFreq: cutOffFrequency,
                               vsync: this,
                               duration: Duration(
-                                  seconds:
-                                      _equalizerAnimationDuration.toInt())))
+                                  seconds: _equalizerAnimationDuration.toInt()),
+                              cutOffPercentage: 50))
                           .addListener(() {
                         setState(() {});
                       });
