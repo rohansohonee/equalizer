@@ -55,12 +55,12 @@ class Equalizer {
   /// Returns the band level range in a list of integers represented in [dB].
   /// The first element is
   /// the lower limit of the range, the second element the upper limit.
-  static Future<List<int>> getBandLevelRange() async {
+  static Future<List<int>?> getBandLevelRange() async {
     return (await _channel.invokeMethod('getBandLevelRange')).cast<int>();
   }
 
   /// Returns the band level in [dB].
-  static Future<int> getBandLevel(int bandId) async {
+  static Future<int?> getBandLevel(int bandId) async {
     return await _channel.invokeMethod('getBandLevel', bandId);
   }
 
@@ -78,12 +78,12 @@ class Equalizer {
   }
 
   /// Returns the center band frequencies in milliHertz.
-  static Future<List<int>> getCenterBandFreqs() async {
+  static Future<List<int>?> getCenterBandFreqs() async {
     return (await _channel.invokeMethod('getCenterBandFreqs')).cast<int>();
   }
 
   /// Returns the preset names available on device.
-  static Future<List<String>> getPresetNames() async {
+  static Future<List<String>?> getPresetNames() async {
     return (await _channel.invokeMethod('getPresetNames')).cast<String>();
   }
 
