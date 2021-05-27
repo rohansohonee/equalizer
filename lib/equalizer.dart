@@ -7,7 +7,7 @@ import 'package:flutter/widgets.dart';
 enum CONTENT_TYPE { MUSIC, MOVIE, GAME, VOICE }
 
 class Equalizer {
-  static AnimationController _animationController;
+  static AnimationController? _animationController;
   static const MethodChannel _channel = const MethodChannel('equalizer');
 
   /// Open's the device equalizer.
@@ -58,12 +58,12 @@ class Equalizer {
   /// Returns the band level range in a list of integers represented in [dB].
   /// The first element is
   /// the lower limit of the range, the second element the upper limit.
-  static Future<List<int>> getBandLevelRange() async {
+  static Future<List<int>?> getBandLevelRange() async {
     return (await _channel.invokeMethod('getBandLevelRange')).cast<int>();
   }
 
   /// Returns the band level in [dB].
-  static Future<int> getBandLevel(int bandId) async {
+  static Future<int?> getBandLevel(int bandId) async {
     return await _channel.invokeMethod('getBandLevel', bandId);
   }
 
@@ -81,12 +81,12 @@ class Equalizer {
   }
 
   /// Returns the center band frequencies in milliHertz.
-  static Future<List<int>> getCenterBandFreqs() async {
+  static Future<List<int>?> getCenterBandFreqs() async {
     return (await _channel.invokeMethod('getCenterBandFreqs')).cast<int>();
   }
 
   /// Returns the preset names available on device.
-  static Future<List<String>> getPresetNames() async {
+  static Future<List<String>?> getPresetNames() async {
     return (await _channel.invokeMethod('getPresetNames')).cast<String>();
   }
 
@@ -95,13 +95,13 @@ class Equalizer {
     await _channel.invokeMethod('setPreset', presetName);
   }
 
-  static Future<AnimationController> cutOffFrequency(
-      {@required int cutOffFreq,
-      @required TickerProvider vsync,
+  static Future<AnimationController?> cutOffFrequency(
+      {required int cutOffFreq,
+      required TickerProvider vsync,
       Duration duration = const Duration(seconds: 1),
       int cutOffPercentage = 100}) async {
     if (_animationController != null) {
-      _animationController.dispose();
+      _animationController!.dispose();
       _animationController = null;
     }
 
@@ -110,8 +110,10 @@ class Equalizer {
       duration: duration,
     );
 
-    var centerFreqs = await Equalizer.getCenterBandFreqs();
-    var bandLevelRange = await Equalizer.getBandLevelRange();
+    var centerFreqs =
+        await (Equalizer.getCenterBandFreqs() as FutureOr<List<int>>);
+    var bandLevelRange =
+        await (Equalizer.getBandLevelRange() as FutureOr<List<int>>);
     var min = -((bandLevelRange[0].abs() / 100) * cutOffPercentage);
 
     List<IntTween> tweens = await Future.wait(centerFreqs.map((item) async {
@@ -131,23 +133,23 @@ class Equalizer {
       }
 
       return IntTween(begin: await Equalizer.getBandLevel(index), end: newValue)
-        ..animate(_animationController);
+        ..animate(_animationController!);
     }));
 
-    _animationController.addListener(() {
+    _animationController!.addListener(() {
       tweens.forEach((tween) {
         var index = tweens.indexOf(tween);
-        Equalizer.setBandLevel(index, tween.evaluate(_animationController));
+        Equalizer.setBandLevel(index, tween.evaluate(_animationController!));
       });
     });
 
-    _animationController.addStatusListener((status) {
+    _animationController!.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        _animationController.dispose();
+        _animationController!.dispose();
         _animationController = null;
       }
     });
 
-    return _animationController..forward();
+    return _animationController!..forward();
   }
 }

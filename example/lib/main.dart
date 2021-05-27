@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:equalizer/equalizer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_xlider/flutter_xlider.dart';
 
 void main() => runApp(MyApp());
 
@@ -146,31 +145,31 @@ class _CustomEQState extends State<CustomEQ> with TickerProviderStateMixin {
               Flexible(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: FlutterSlider(
-                    disabled: !widget.enabled,
-                    axis: Axis.horizontal,
-                    min: 0,
-                    max: (2000).toDouble(),
-                    values: [_cuttOfFrequency],
-                    onDragCompleted:
-                        (handlerIndex, lowerValue, upperValue) async {
-                      var cutOffFrequency = (lowerValue as double).toInt();
+                  // child: FlutterSlider(
+                  //   disabled: !widget.enabled,
+                  //   axis: Axis.horizontal,
+                  //   min: 0,
+                  //   max: (2000).toDouble(),
+                  //   values: [_cuttOfFrequency],
+                  //   onDragCompleted:
+                  //       (handlerIndex, lowerValue, upperValue) async {
+                  //     var cutOffFrequency = (lowerValue as double).toInt();
 
-                      (await Equalizer.cutOffFrequency(
-                              cutOffFreq: cutOffFrequency,
-                              vsync: this,
-                              duration: Duration(
-                                  seconds: _equalizerAnimationDuration.toInt()),
-                              cutOffPercentage: 50))
-                          .addListener(() {
-                        setState(() {});
-                      });
+                  //     (await Equalizer.cutOffFrequency(
+                  //             cutOffFreq: cutOffFrequency,
+                  //             vsync: this,
+                  //             duration: Duration(
+                  //                 seconds: _equalizerAnimationDuration.toInt()),
+                  //             cutOffPercentage: 50))
+                  //         .addListener(() {
+                  //       setState(() {});
+                  //     });
 
-                      setState(() {
-                        _cuttOfFrequency = cutOffFrequency.toDouble();
-                      });
-                    },
-                  ),
+                  //     setState(() {
+                  //       _cuttOfFrequency = cutOffFrequency.toDouble();
+                  //     });
+                  //   },
+                  // ),
                 ),
               ),
               Text("${2000} Hz"),
@@ -186,18 +185,18 @@ class _CustomEQState extends State<CustomEQ> with TickerProviderStateMixin {
               Flexible(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: FlutterSlider(
-                    axis: Axis.horizontal,
-                    min: 0,
-                    max: 10,
-                    values: [_equalizerAnimationDuration],
-                    onDragCompleted:
-                        (handlerIndex, lowerValue, upperValue) async {
-                      setState(() {
-                        _equalizerAnimationDuration = lowerValue.toDouble();
-                      });
-                    },
-                  ),
+                  // child: FlutterSlider(
+                  //   axis: Axis.horizontal,
+                  //   min: 0,
+                  //   max: 10,
+                  //   values: [_equalizerAnimationDuration],
+                  //   onDragCompleted:
+                  //       (handlerIndex, lowerValue, upperValue) async {
+                  //     setState(() {
+                  //       _equalizerAnimationDuration = lowerValue.toDouble();
+                  //     });
+                  //   },
+                  // ),
                 ),
               ),
               Text("10 s"),
@@ -216,17 +215,18 @@ class _CustomEQState extends State<CustomEQ> with TickerProviderStateMixin {
           child: FutureBuilder<int>(
             future: Equalizer.getBandLevel(bandId),
             builder: (context, snapshot) {
-              return FlutterSlider(
-                disabled: !widget.enabled,
-                axis: Axis.vertical,
-                rtl: true,
-                min: min,
-                max: max,
-                values: [snapshot.hasData ? snapshot.data.toDouble() : 0],
-                onDragCompleted: (handlerIndex, lowerValue, upperValue) {
-                  Equalizer.setBandLevel(bandId, lowerValue.toInt());
-                },
-              );
+              return Container();
+              // return FlutterSlider(
+              //   disabled: !widget.enabled,
+              //   axis: Axis.vertical,
+              //   rtl: true,
+              //   min: min,
+              //   max: max,
+              //   values: [snapshot.hasData ? snapshot.data.toDouble() : 0],
+              //   onDragCompleted: (handlerIndex, lowerValue, upperValue) {
+              //     Equalizer.setBandLevel(bandId, lowerValue.toInt());
+              //   },
+              // );
             },
           ),
         ),
